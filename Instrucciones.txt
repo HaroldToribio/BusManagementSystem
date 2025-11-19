@@ -1,0 +1,128 @@
+
+Instrucciones para Ejecutar el Proyecto "Gestión de Autobuses"
+
+1. Configuración del Backend (API en .NET)
+
+Requisitos Previos
+- Visual Studio o Visual Studio Code con soporte para .NET Core.
+- SQL Server (puedes usar SQL Server Express si no tienes la versión completa).
+- .NET 6.0 o superior instalado en tu máquina.
+
+Pasos para Configurar el Backend:
+
+1. Clonar el repositorio de GitHub:
+
+   Abre tu terminal y clona el repositorio que creaste en GitHub:
+
+   git clone https://github.com/tu-usuario/gestion-de-autobuses.git
+   cd gestion-de-autobuses
+
+2. Instalar las dependencias:
+
+   Asegúrate de que todas las dependencias necesarias estén instaladas ejecutando:
+
+   dotnet restore
+
+3. Configurar la Base de Datos:
+
+   En el archivo appsettings.json, configura la cadena de conexión para la base de datos SQL Server:
+
+   "ConnectionStrings": {
+     "DefaultConnection": "Server=localhost;Database=BusManagementDB;Trusted_Connection=True;TrustServerCertificate=True;"
+   }
+
+   Si la base de datos no existe, crea una nueva base de datos llamada BusManagementDB en SQL Server.
+
+4. Crear y Aplicar Migraciones:
+
+   Genera las migraciones de la base de datos para asegurarte de que las tablas se creen correctamente:
+
+   dotnet ef migrations add InitialCreate
+   dotnet ef database update
+
+5. Ejecutar el Backend:
+
+   Ejecuta la API utilizando el siguiente comando:
+
+   dotnet run
+
+   La API estará disponible en http://localhost:5231.
+
+2. Configuración del Frontend (React)
+
+Requisitos Previos
+- Node.js y npm instalados en tu máquina.
+- Un navegador moderno (como Chrome o Firefox).
+
+Pasos para Configurar el Frontend:
+
+1. Clonar el repositorio de GitHub:
+
+   Si aún no has clonado el repositorio del frontend, hazlo ahora:
+
+   git clone https://github.com/tu-usuario/gestion-de-autobuses.git
+   cd gestion-de-autobuses
+
+2. Instalar las dependencias de npm:
+
+   Navega a la carpeta del frontend y ejecuta el siguiente comando para instalar todas las dependencias necesarias:
+
+   npm install
+
+3. Verificar la configuración de la API en React:
+
+   Asegúrate de que las solicitudes HTTP en React apunten a la URL correcta de tu backend. En el archivo ReservationList.jsx o BusList.jsx, las URL deben estar configuradas como:
+
+   axios.get('http://localhost:5231/api/reservations')
+
+   Verifica que esta URL esté correctamente configurada para coincidir con la dirección de tu API.
+
+4. Ejecutar la Aplicación React:
+
+   Después de instalar las dependencias, ejecuta el siguiente comando en el directorio de tu proyecto React para iniciar el servidor de desarrollo:
+
+   npm start
+
+   La aplicación estará disponible en http://localhost:3000.
+
+3. Acceso a la API (Swagger)
+
+- Abre un navegador y ve a http://localhost:5231/swagger/index.html.
+- Aquí podrás probar los endpoints de la API, como GET, POST, PUT, DELETE para autobuses, rutas, horarios, y reservas.
+
+Verificación de la Ejecución
+
+1. Backend (API):
+   - Inicia el proyecto de .NET usando dotnet run.
+   - Asegúrate de que la API está funcionando accediendo a http://localhost:5231/swagger/index.html.
+
+2. Frontend (React):
+   - Inicia el proyecto de React usando npm start.
+   - Asegúrate de que la interfaz de usuario de React está funcionando accediendo a http://localhost:3000.
+
+3. Funcionalidad:
+   - Verifica que puedes realizar las operaciones CRUD (crear, listar, actualizar, eliminar) desde la interfaz de usuario de React para autobuses, rutas, horarios, y reservas.
+
+Problemas Comunes y Soluciones
+
+- CORS: Si ves un error relacionado con CORS (Cross-Origin Resource Sharing), asegúrate de que el backend permita solicitudes desde tu frontend. Puedes solucionar esto en Startup.cs o Program.cs añadiendo un middleware para habilitar CORS:
+
+  builder.Services.AddCors(options =>
+  {
+      options.AddPolicy("AllowAll", policy =>
+      {
+          policy.AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+      });
+  });
+
+  app.UseCors("AllowAll");
+
+- Errores en la Base de Datos: Si la base de datos no se está actualizando correctamente o ves errores, verifica que la cadena de conexión en appsettings.json sea correcta y que la base de datos esté en funcionamiento.
+
+Conclusión
+
+Con estos pasos, deberías poder configurar y ejecutar tu proyecto de Gestión de Autobuses tanto en el backend como en el frontend. Ahora podrás gestionar autobuses, rutas, horarios y reservas desde una interfaz moderna creada con React.
+
+Si necesitas hacer alguna modificación o agregar más características, ¡estaré aquí para ayudarte!
