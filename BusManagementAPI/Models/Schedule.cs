@@ -7,13 +7,14 @@ namespace BusManagementAPI.Models
     {
         public int Id { get; set; }
 
-        [Required]
-        public string DepartureTime { get; set; }
+        [Required(ErrorMessage = "Departure time is required")]
+        public string DepartureTime { get; set; } = string.Empty;
 
-        [Required]
-        public string ArrivalTime { get; set; }
+        [Required(ErrorMessage = "Arrival time is required")]
+        public string ArrivalTime { get; set; } = string.Empty;
 
-        [Required]
+        [Required(ErrorMessage = "Route ID is required")]
+        [Range(1, int.MaxValue, ErrorMessage = "Invalid route ID")]
         public int RouteId { get; set; }
 
         [ForeignKey("RouteId")]

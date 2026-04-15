@@ -1,5 +1,7 @@
 using BusManagementAPI.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -15,21 +17,64 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Aqu� agregas la pol�tica de CORS:
+// Add CORS with restricted origins
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: MyAllowSpecificOrigins,
                       policy =>
                       {
                           policy.WithOrigins("http://localhost:3000", "http://localhost:3001")
+                                .AllowAnyMethod()
                                 .AllowAnyHeader()
-                                .AllowAnyMethod();
+                                .AllowCredentials();
                       });
+});
+
+// Add Rate Limiting to prevent DoS attacks
+builder.Services.AddRateLimiter(rateLimiterOptions =>
+{
+    rateLimiterOptions.AddFixedWindowLimiter(policyName: "fixed", options =>
+    {
+        options.PermitLimit = 100;
+        options.Window = TimeSpan.FromMinutes(1);
+        options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        options.QueueLimit = 0;
+    });
 });
 
 var app = builder.Build();
 
-// Aqu� activas CORS:
+// Add security headers middleware
+app.Use(async (context, next) =>
+{
+    // Prevent Clickjacking attacks
+    context.Response.Headers.Add("X-Frame-Options", "DENY");
+    
+    // Prevent MIME type sniffing
+    context.Response.Headers.Add("X-Content-Type-Options", "nosniff");
+    
+    // Enable XSS protection
+    context.Response.Headers.Add("X-XSS-Protection", "1; mode=block");
+    
+    // Content Security Policy to prevent XSS
+    context.Response.Headers.Add("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'");
+    
+    // Referrer Policy
+    context.Response.Headers.Add("Referrer-Policy", "strict-origin-when-cross-origin");
+    
+    await next();
+});
+
+// Enable HTTPS redirection in production
+if (app.Environment.IsProduction())
+{
+    app.UseHttpsRedirection();
+}
+
+// Apply rate limiting
+app.UseRateLimiter();
+
+// Apply CORS
 app.UseCors(MyAllowSpecificOrigins);
 
 if (app.Environment.IsDevelopment())

@@ -7,10 +7,12 @@ namespace BusManagementAPI.Models
     {
         public int Id { get; set; }
 
-        [Required]
-        public string PassengerName { get; set; }
+        [Required(ErrorMessage = "Passenger name is required")]
+        [StringLength(200, MinimumLength = 2, ErrorMessage = "Passenger name must be between 2 and 200 characters")]
+        public string PassengerName { get; set; } = string.Empty;
 
-        [Required]
+        [Required(ErrorMessage = "Schedule ID is required")]
+        [Range(1, int.MaxValue, ErrorMessage = "Invalid schedule ID")]
         public int ScheduleId { get; set; }
 
         [ForeignKey("ScheduleId")]

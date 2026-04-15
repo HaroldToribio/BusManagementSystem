@@ -6,10 +6,12 @@ namespace BusManagementAPI.Models
     {
         public int Id { get; set; }
 
-        [Required]
-        public string Origin { get; set; }
+        [Required(ErrorMessage = "Origin is required")]
+        [StringLength(150, MinimumLength = 2, ErrorMessage = "Origin must be between 2 and 150 characters")]
+        public string Origin { get; set; } = string.Empty;
 
-        [Required]
-        public string Destination { get; set; }
+        [Required(ErrorMessage = "Destination is required")]
+        [StringLength(150, MinimumLength = 2, ErrorMessage = "Destination must be between 2 and 150 characters")]
+        public string Destination { get; set; } = string.Empty;
     }
 }
