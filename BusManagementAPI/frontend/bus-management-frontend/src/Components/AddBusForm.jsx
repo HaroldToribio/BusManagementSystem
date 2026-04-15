@@ -1,7 +1,11 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import axios from 'axios';
+import { FaBus, FaTag, FaUsers, FaCalendarAlt, FaCheckCircle } from 'react-icons/fa';
+import { LanguageContext, translations } from '../context/LanguageContext';
 
 const AddBusForm = ({ onBusAdded }) => {
+  const { language } = useContext(LanguageContext);
+  const t = translations[language].busForm;
   const [bus, setBus] = useState({
     busNumber: '',
     model: '',
@@ -18,72 +22,79 @@ const AddBusForm = ({ onBusAdded }) => {
     e.preventDefault();
     try {
       await axios.post('http://localhost:5231/api/buses', bus);
-      alert('Autobús agregado correctamente.');
+      alert(t.addedSuccess || 'Bus added successfully');
       setBus({ busNumber: '', model: '', capacity: '', year: '', status: '' });
       onBusAdded(); // Recargar lista
     } catch (error) {
       console.error('Error al agregar autobús:', error);
-      alert('Error al agregar autobús.');
+      alert(t.addError || 'Error adding bus');
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-4 border rounded">
-      <h2 className="mb-3">Agregar Autobús</h2>
-      <div className="mb-3">
-        <input
-          name="busNumber"
-          placeholder="Número"
-          value={bus.busNumber}
-          onChange={handleChange}
-          required
-          className="form-control"
-        />
-      </div>
-      <div className="mb-3">
-        <input
-          name="model"
-          placeholder="Modelo"
-          value={bus.model}
-          onChange={handleChange}
-          required
-          className="form-control"
-        />
-      </div>
-      <div className="mb-3">
-        <input
-          name="capacity"
-          type="number"
-          placeholder="Capacidad"
-          value={bus.capacity}
-          onChange={handleChange}
-          required
-          className="form-control"
-        />
-      </div>
-      <div className="mb-3">
-        <input
-          name="year"
-          type="number"
-          placeholder="Año"
-          value={bus.year}
-          onChange={handleChange}
-          required
-          className="form-control"
-        />
-      </div>
-      <div className="mb-3">
-        <input
-          name="status"
-          placeholder="Estado"
-          value={bus.status}
-          onChange={handleChange}
-          required
-          className="form-control"
-        />
-      </div>
-      <button type="submit" className="btn btn-primary w-100">Agregar</button>
-    </form>
+    <div className="form-container">
+      <h2>{t.title}</h2>
+      <form onSubmit={handleSubmit} className="bus-form">
+        <div className="form-group">
+          <label><FaTag /> {t.busNumber}</label>
+          <input
+            name="busNumber"
+            placeholder={t.placeholderBusNumber}
+            value={bus.busNumber}
+            onChange={handleChange}
+            required
+            className="form-input"
+          />
+        </div>
+        <div className="form-group">
+          <label><FaBus /> {t.model}</label>
+          <input
+            name="model"
+            placeholder={t.placeholderModel}
+            value={bus.model}
+            onChange={handleChange}
+            required
+            className="form-input"
+          />
+        </div>
+        <div className="form-group">
+          <label><FaUsers /> {t.capacity}</label>
+          <input
+            name="capacity"
+            type="number"
+            placeholder={t.placeholderCapacity}
+            value={bus.capacity}
+            onChange={handleChange}
+            required
+            className="form-input"
+          />
+        </div>
+        <div className="form-group">
+          <label><FaCalendarAlt /> {t.year}</label>
+          <input
+            name="year"
+            type="number"
+            placeholder={t.placeholderYear}
+            value={bus.year}
+            onChange={handleChange}
+            required
+            className="form-input"
+          />
+        </div>
+        <div className="form-group">
+          <label><FaCheckCircle /> {t.status}</label>
+          <input
+            name="status"
+            placeholder={t.placeholderStatus}
+            value={bus.status}
+            onChange={handleChange}
+            required
+            className="form-input"
+          />
+        </div>
+        <button type="submit" className="submit-btn">{t.button}</button>
+      </form>
+    </div>
   );
 };
 
