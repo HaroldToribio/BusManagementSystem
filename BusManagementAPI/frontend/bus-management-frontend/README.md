@@ -1,70 +1,270 @@
-# Getting Started with Create React App
+# 🚌 Bus Management System - Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+> **React 19 Single Page Application**
+> 
+> Interface moderna y responsiva para la gestión de autobuses, rutas, horarios y reservas.
 
-## Available Scripts
+## 📋 Tabla de Contenidos
 
-In the project directory, you can run:
+- [Características](#características)
+- [Tecnologías](#tecnologías)
+- [Instalación](#instalación)
+- [Uso](#uso)
+- [Estructura de Componentes](#estructura-de-componentes)
+- [Integración con API](#integración-con-api)
 
-### `npm start`
+## ✨ Características
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Funcionalidades Principales
+- 🚌 **Gestión de Autobuses** - Crear, editar, listar y eliminar autobuses
+- 🛣️ **Gestión de Rutas** - Administrar puntos de origen y destino
+- 📅 **Gestión de Horarios** - Asignar horarios a rutas y autobuses
+- 🎫 **Gestión de Reservas** - Crear y gestionar reservas de pasajeros
+- 🔍 **Búsqueda y Filtrado** - Navegar fácilmente por los datos
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Mejoras de UX/UI
+- 📢 **Notificaciones Inline** - Feedback personalizado para todas las acciones (éxito, error, información)
+- 🌍 **Multiidioma** - Soporte completo para Español e Inglés
+- 🌙 **Dark Mode** - Tema oscuro/claro con preferencias persistentes
+- ♿ **Accesible** - Navegación intuitiva y componentes accesibles
+- 📱 **Responsivo** - Diseño adaptable a todos los tamaños de pantalla
 
-### `npm test`
+## 🛠️ Tecnologías
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+| Tecnología | Versión | Propósito |
+|------------|---------|----------|
+| **React** | 19.1.0 | Framework frontend |
+| **React Router** | - | Enrutamiento de páginas |
+| **Axios** | 1.10.0 | HTTP client para API calls |
+| **React Icons** | 5.6.0 | Librería de iconos |
+| **CSS3** | - | Estilos y animaciones |
 
-### `npm run build`
+## 🚀 Instalación
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Requisitos Previos
+- **Node.js** v16+ (con npm incluido)
+- **Backend API** ejecutándose en `http://localhost:5231`
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Pasos de Instalación
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+1. Navega a la carpeta del frontend:
+   ```bash
+   cd BusManagementAPI/frontend/bus-management-frontend
+   ```
 
-### `npm run eject`
+2. Instala las dependencias:
+   ```bash
+   npm install
+   ```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+3. Inicia el servidor de desarrollo:
+   ```bash
+   npm start
+   ```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+4. Abre tu navegador en:
+   ```
+   http://localhost:3000
+   ```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## 📖 Uso
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### Scripts Disponibles
 
-## Learn More
+```bash
+# Inicia el servidor de desarrollo
+npm start
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+# Ejecuta las pruebas unitarias
+npm test
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+# Genera build de producción
+npm run build
 
-### Code Splitting
+# Ejecuta linter para verificar código
+npm run lint
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## 🏗️ Estructura de Componentes
 
-### Analyzing the Bundle Size
+```
+src/
+├── Components/
+│   ├── NavBar.jsx              # Barra de navegación principal
+│   ├── AddBusForm.jsx          # Formulario para crear autobús
+│   ├── AddRouteForm.jsx        # Formulario para crear ruta
+│   ├── AddScheduleForm.jsx     # Formulario para crear horario
+│   ├── BusList.jsx             # Lista y edición de autobuses
+│   ├── RoutesList.jsx          # Lista y edición de rutas
+│   ├── EditBusForm.jsx         # Formulario para editar autobús
+│   ├── ReservationList.jsx     # Lista y creación de reservas
+│   └── FormNotification.jsx    # Componente de notificaciones inline
+├── pages/
+│   └── LandingPage.jsx         # Página de inicio
+├── context/
+│   ├── LanguageContext.js      # Controla idioma (EN/ES)
+│   └── (otros contextos)
+├── services/
+│   └── axiosConfig.js          # Configuración de Axios
+├── App.js                      # Componente raíz
+├── App.css                     # Estilos globales
+└── index.js                    # Entry point
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### Componentes Clave
 
-### Making a Progressive Web App
+#### FormNotification.jsx
+Componente reutilizable para mostrar notificaciones inline en lugar de alerts:
+```jsx
+<FormNotification 
+  message="Registro creado exitosamente"
+  type="success"  // 'success' | 'error' | 'info'
+/>
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+**Tipos de Notificación:**
+- `success` - Fondo verde, para operaciones completadas
+- `error` - Fondo rojo, para errores de validación o servidor
+- `info` - Fondo azul, para información general
 
-### Advanced Configuration
+#### LanguageContext
+Maneja el cambio de idioma (English/Español):
+```jsx
+const { language, setLanguage, t } = useContext(LanguageContext);
+<button onClick={() => setLanguage('es')}>Español</button>
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## 🔌 Integración con API
 
-### Deployment
+### Configuración Base
+- **URL Base:** `http://localhost:5231/api`
+- **Autenticación:** No requerida en desarrollo
+- **Headers:** `Content-Type: application/json`
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+### Endpoints Consumidos
+```javascript
+// Buses
+GET    /api/buses
+POST   /api/buses
+PUT    /api/buses/{id}
+DELETE /api/buses/{id}
 
-### `npm run build` fails to minify
+// Rutas
+GET    /api/routes
+POST   /api/routes
+PUT    /api/routes/{id}
+DELETE /api/routes/{id}
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+// Horarios
+GET    /api/schedules
+POST   /api/schedules
+PUT    /api/schedules/{id}
+DELETE /api/schedules/{id}
+
+// Reservas
+GET    /api/reservations
+POST   /api/reservations
+PUT    /api/reservations/{id}
+DELETE /api/reservations/{id}
+```
+
+### Ejemplo de Request con Axios
+```javascript
+import axios from 'axios';
+
+// Crear autobús
+axios.post('/api/buses', {
+  licensePlate: 'ABC-123',
+  capacity: 50,
+  brand: 'Mercedes-Benz',
+  model: 'O 400 RSD'
+})
+.then(response => {
+  setMessage('Autobús creado exitosamente');
+  setMessageType('success');
+})
+.catch(error => {
+  setMessage(error.response?.data?.message || 'Error al crear');
+  setMessageType('error');
+});
+```
+
+## 🌍 Soporte Multiidioma
+
+El sistema soporta inglés y español con switching en tiempo real:
+
+```javascript
+const { language, setLanguage, t } = useContext(LanguageContext);
+
+// Uso de traducciones
+<h2>{t.busManagement}</h2>  // Se traduce automáticamente
+<button onClick={() => setLanguage('en')}>English</button>
+```
+
+Las preferencias se guardan en `localStorage` y se cargan al reiniciar.
+
+## 🌙 Dark Mode
+
+Activable desde el navbar, persiste en `localStorage`:
+
+```javascript
+// Dark mode está disponible como toggle en la parte superior del navbar
+// La preferencia se guarda y se restablece al recargar la página
+```
+
+## 📝 Convenciones de Código
+
+### Nombrado de Componentes
+- PascalCase para nombres de componentes: `AddBusForm.jsx`
+- camelCase para funciones y variables: `fetchBuses()`
+
+### Estructura de Formularios
+Todos los formularios siguen el patrón:
+1. Estado del formulario (`useState`)
+2. Manejador de submit con try-catch
+3. Feedback con `FormNotification`
+4. Reinicio de formulario tras éxito
+
+### Manejo de Errores
+```javascript
+try {
+  const response = await axios.post(endpoint, data);
+  setMessage(t.successMessage);
+  setMessageType('success');
+} catch (error) {
+  setMessage(error.response?.data?.message || t.errorMessage);
+  setMessageType('error');
+}
+```
+
+## 🚧 Desarrollo Futuro
+
+- [ ] Autenticación y autorización
+- [ ] Upload de imágenes para autobuses
+- [ ] Reporte de estadísticas
+- [ ] Exportar datos a PDF/Excel
+- [ ] Tests unitarios con Jest
+- [ ] Mejoras de performance
+
+## 🐛 Troubleshooting
+
+### "Cannot POST /api/buses"
+**Solución:** Verifica que el backend está corriendo en `http://localhost:5231`
+
+### CORS Error
+**Solución:** Asegúrate que el backend tiene CORS habilitado para `localhost:3000`
+
+### Formulario no responde
+**Solución:** Abre la consola (F12) y revisa los errores de red en la pestaña Network
+
+### Cambio de idioma no persiste
+**Solución:** Verifica que localStorage no esté deshabilitado en el navegador
+
+## 📚 Recursos Adicionales
+
+- [Documentación de React](https://react.dev)
+- [Guía de Axios](https://axios-http.com)
+- [React Router Docs](https://reactrouter.com)
+
+## ✒️ Autor
+**Harold Toribio** - Desarrollador Full Stack
