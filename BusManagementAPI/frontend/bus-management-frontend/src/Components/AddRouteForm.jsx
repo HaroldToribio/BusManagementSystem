@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import axios from 'axios';
 import { FaMapMarkerAlt } from 'react-icons/fa';
 import { LanguageContext, translations } from '../context/LanguageContext';
+import FormNotification from './FormNotification';
 
 const AddRouteForm = ({ onRouteAdded }) => {
   const { language } = useContext(LanguageContext);
@@ -10,6 +11,8 @@ const AddRouteForm = ({ onRouteAdded }) => {
     origin: '',
     destination: ''
   });
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState('');
 
   const handleChange = (e) => {
     setRoute({ ...route, [e.target.name]: e.target.value });
@@ -19,18 +22,21 @@ const AddRouteForm = ({ onRouteAdded }) => {
     e.preventDefault();
     try {
       await axios.post('http://localhost:5231/api/routes', route);
-      alert(t.addedSuccess || 'Route added successfully');
+      setMessage(t.addedSuccess || 'Route added successfully');
+      setMessageType('success');
       setRoute({ origin: '', destination: '' });
-      onRouteAdded(); // Reload list
+      onRouteAdded?.(); // Reload list
     } catch (error) {
       console.error('Error adding route:', error);
-      alert(t.addError || 'Error adding route');
+      setMessage(t.addError || 'Error adding route');
+      setMessageType('error');
     }
   };
 
   return (
     <div className="form-container">
       <h2>{t.title}</h2>
+      <FormNotification message={message} type={messageType} />
       <form onSubmit={handleSubmit} className="route-form">
         <div className="form-group">
           <label><FaMapMarkerAlt /> {t.origin}</label>

@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import axios from 'axios';
 import { FaBus, FaTag, FaUsers, FaCalendarAlt, FaCheckCircle } from 'react-icons/fa';
 import { LanguageContext, translations } from '../context/LanguageContext';
+import FormNotification from './FormNotification';
 
 const AddBusForm = ({ onBusAdded }) => {
   const { language } = useContext(LanguageContext);
@@ -13,6 +14,8 @@ const AddBusForm = ({ onBusAdded }) => {
     year: '',
     status: ''
   });
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState('');
 
   const handleChange = (e) => {
     setBus({ ...bus, [e.target.name]: e.target.value });
@@ -22,18 +25,21 @@ const AddBusForm = ({ onBusAdded }) => {
     e.preventDefault();
     try {
       await axios.post('http://localhost:5231/api/buses', bus);
-      alert(t.addedSuccess || 'Bus added successfully');
+      setMessage(t.addedSuccess || 'Bus added successfully');
+      setMessageType('success');
       setBus({ busNumber: '', model: '', capacity: '', year: '', status: '' });
-      onBusAdded(); // Recargar lista
+      onBusAdded?.(); // Recargar lista
     } catch (error) {
       console.error('Error al agregar autobús:', error);
-      alert(t.addError || 'Error adding bus');
+      setMessage(t.addError || 'Error adding bus');
+      setMessageType('error');
     }
   };
 
   return (
     <div className="form-container">
       <h2>{t.title}</h2>
+      <FormNotification message={message} type={messageType} />
       <form onSubmit={handleSubmit} className="bus-form">
         <div className="form-group">
           <label><FaTag /> {t.busNumber}</label>

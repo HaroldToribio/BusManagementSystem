@@ -49,6 +49,7 @@ const NavBar = ({ darkMode, toggleDarkMode }) => {
 
         <div className="navbar-actions">
           <div className="navbar-language">
+            <span className="navbar-language-label">{t.languageLabel}</span>
             <button
               className={`lang-btn ${language === 'en' ? 'active' : ''}`}
               onClick={() => setLanguage('en')}

@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import { FaClock, FaRoute } from 'react-icons/fa';
 import { LanguageContext, translations } from '../context/LanguageContext';
+import FormNotification from './FormNotification';
 
 const AddScheduleForm = ({ onScheduleAdded }) => {
   const { language } = useContext(LanguageContext);
@@ -12,6 +13,8 @@ const AddScheduleForm = ({ onScheduleAdded }) => {
     arrivalTime: '',
     routeId: '',
   });
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState('');
 
   useEffect(() => {
     // Obtener rutas para asignar al horario
@@ -19,7 +22,8 @@ const AddScheduleForm = ({ onScheduleAdded }) => {
       .then(response => setRoutes(response.data))
       .catch(error => {
         console.error('Error al obtener rutas:', error);
-        alert(t.fetchRoutesError || 'Unable to load routes, please try again later.');
+        setMessage(t.fetchRoutesError || 'Unable to load routes, please try again later.');
+        setMessageType('error');
       });
   }, []);
 
@@ -31,18 +35,21 @@ const AddScheduleForm = ({ onScheduleAdded }) => {
     e.preventDefault();
     try {
       await axios.post('http://localhost:5231/api/schedules', schedule);
-      alert(t.addedSuccess || 'Schedule added successfully');
+      setMessage(t.addedSuccess || 'Schedule added successfully');
+      setMessageType('success');
       setSchedule({ departureTime: '', arrivalTime: '', routeId: '' });
-      onScheduleAdded(); // Recargar lista después de agregar
+      onScheduleAdded?.(); // Recargar lista después de agregar
     } catch (error) {
       console.error('Error al agregar horario:', error);
-      alert(t.addError || 'Error adding schedule');
+      setMessage(t.addError || 'Error adding schedule');
+      setMessageType('error');
     }
   };
 
   return (
     <div className="form-container">
       <h2>{t.title}</h2>
+      <FormNotification message={message} type={messageType} />
       <form onSubmit={handleSubmit} className="schedule-form">
         <div className="form-group">
           <label><FaClock /> {t.departureTime}</label>

@@ -17,6 +17,6 @@ namespace BusManagementAPI.Models
         public int RouteId { get; set; }
 
         [ForeignKey("RouteId")]
-        public Route Route { get; set; }
+        public Route? Route { get; set; }
     }
 }

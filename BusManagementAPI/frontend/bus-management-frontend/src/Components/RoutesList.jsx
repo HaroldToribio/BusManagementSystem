@@ -2,12 +2,15 @@ import React, { useContext, useEffect, useState } from 'react';
 import axios from 'axios';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import { LanguageContext, translations } from '../context/LanguageContext';
+import FormNotification from './FormNotification';
 
 const RoutesList = ({ reload }) => {
   const { language } = useContext(LanguageContext);
   const t = translations[language].routesList;
   const [routes, setRoutes] = useState([]);
   const [editingRoute, setEditingRoute] = useState(null);
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState('');
 
   useEffect(() => {
     axios.get('http://localhost:5231/api/routes')
@@ -20,9 +23,12 @@ const RoutesList = ({ reload }) => {
       try {
         await axios.delete(`http://localhost:5231/api/routes/${id}`);
         setRoutes(routes.filter(route => route.id !== id));
+        setMessage(t.deleteSuccess || 'Route deleted successfully');
+        setMessageType('success');
       } catch (error) {
         console.error('Error deleting route:', error);
-        alert(t.deleteError || 'Error deleting route.');
+        setMessage(t.deleteError || 'Error deleting route');
+        setMessageType('error');
       }
     }
   };
@@ -39,14 +45,16 @@ const RoutesList = ({ reload }) => {
     e.preventDefault();
     try {
       await axios.put(`http://localhost:5231/api/routes/${editingRoute.id}`, editingRoute);
-      alert(t.updatedSuccess || 'Route updated successfully');
+      setMessage(t.updatedSuccess || 'Route updated successfully');
+      setMessageType('success');
       setEditingRoute(null);
       // Reload list
       axios.get('http://localhost:5231/api/routes')
         .then(response => setRoutes(response.data))
         .catch(error => console.error('Error fetching routes:', error));
     } catch (error) {
-      alert(t.updateError || 'Error updating route');
+      setMessage(t.updateError || 'Error updating route');
+      setMessageType('error');
       console.error(error);
     }
   };
@@ -54,11 +62,13 @@ const RoutesList = ({ reload }) => {
   return (
     <div className="list-container">
       <h2>{t.title}</h2>
+      <FormNotification message={message} type={messageType} />
 
       {/* Edit Form */}
       {editingRoute && (
         <div className="edit-form-card">
           <h3>{t.editTitle}</h3>
+          <FormNotification message={message} type={messageType} />
           <form onSubmit={handleUpdate} className="route-form">
             <div className="form-group">
               <label>{t.origin}</label>

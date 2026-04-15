@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import { FaUser, FaCalendarAlt, FaEdit, FaTrash } from 'react-icons/fa';
 import { LanguageContext, translations } from '../context/LanguageContext';
+import FormNotification from './FormNotification';
 
 const ReservationList = () => {
   const { language } = useContext(LanguageContext);
@@ -10,6 +11,8 @@ const ReservationList = () => {
   const [newReservation, setNewReservation] = useState({ passengerName: '', scheduleId: '' });
   const [schedules, setSchedules] = useState([]);
   const [editingReservation, setEditingReservation] = useState(null);
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState('');
 
   useEffect(() => {
     fetchReservations();
@@ -19,13 +22,21 @@ const ReservationList = () => {
   const fetchReservations = () => {
     axios.get('http://localhost:5231/api/reservations')
       .then(res => setReservations(res.data))
-      .catch(err => console.error('Error al obtener reservas:', err));
+      .catch(err => {
+        console.error('Error al obtener reservas:', err);
+        setMessage(t.fetchError || 'Unable to load reservations.');
+        setMessageType('error');
+      });
   };
 
   const fetchSchedules = () => {
     axios.get('http://localhost:5231/api/schedules')
       .then(res => setSchedules(res.data))
-      .catch(err => console.error('Error al obtener horarios:', err));
+      .catch(err => {
+        console.error('Error al obtener horarios:', err);
+        setMessage(t.fetchError || 'Unable to load schedules.');
+        setMessageType('error');
+      });
   };
 
   const handleChange = (e) => {
@@ -35,16 +46,19 @@ const ReservationList = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!newReservation.passengerName || !newReservation.scheduleId) {
-      alert(t.fillFields || 'Please complete all fields.');
+      setMessage(t.fillFields || 'Please complete all fields.');
+      setMessageType('error');
       return;
     }
     try {
       await axios.post('http://localhost:5231/api/reservations', newReservation);
-      alert(t.addedSuccess || 'Reservation created successfully');
+      setMessage(t.addedSuccess || 'Reservation created successfully');
+      setMessageType('success');
       setNewReservation({ passengerName: '', scheduleId: '' });
       fetchReservations();
     } catch (err) {
-      alert(t.addError || 'Error creating reservation');
+      setMessage(t.addError || 'Error creating reservation');
+      setMessageType('error');
       console.error(err);
     }
   };
@@ -56,16 +70,19 @@ const ReservationList = () => {
   const handleUpdate = async (e) => {
     e.preventDefault();
     if (!editingReservation.passengerName || !editingReservation.scheduleId) {
-      alert(t.fillFields || 'Please complete all fields.');
+      setMessage(t.fillFields || 'Please complete all fields.');
+      setMessageType('error');
       return;
     }
     try {
       await axios.put(`http://localhost:5231/api/reservations/${editingReservation.id}`, editingReservation);
-      alert(t.updatedSuccess || 'Reservation updated successfully');
+      setMessage(t.updatedSuccess || 'Reservation updated successfully');
+      setMessageType('success');
       setEditingReservation(null);
       fetchReservations();
     } catch (err) {
-      alert(t.updateError || 'Error updating reservation');
+      setMessage(t.updateError || 'Error updating reservation');
+      setMessageType('error');
       console.error(err);
     }
   };
@@ -88,6 +105,7 @@ const ReservationList = () => {
       {/* Add Reservation Form */}
       <div className="form-container">
         <h3>{t.title}</h3>
+        <FormNotification message={message} type={messageType} />
         <form onSubmit={handleSubmit} className="reservation-form">
           <div className="form-group">
             <label><FaUser /> {t.passengerName}</label>

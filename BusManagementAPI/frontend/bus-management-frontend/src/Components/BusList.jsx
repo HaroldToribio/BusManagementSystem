@@ -2,12 +2,15 @@ import React, { useContext, useEffect, useState } from 'react';
 import axios from 'axios';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import { LanguageContext, translations } from '../context/LanguageContext';
+import FormNotification from './FormNotification';
 
 const BusList = ({ reload }) => {
   const { language } = useContext(LanguageContext);
   const t = translations[language].busList;
   const [buses, setBuses] = useState([]);
   const [editingBus, setEditingBus] = useState(null); // Estado para el autobús en edición
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState('');
 
   useEffect(() => {
     axios.get('http://localhost:5231/api/buses')
@@ -20,9 +23,12 @@ const BusList = ({ reload }) => {
       try {
         await axios.delete(`http://localhost:5231/api/buses/${id}`);
         setBuses(buses.filter(bus => bus.id !== id));  // Actualiza la lista sin recargar
+        setMessage(t.deleteSuccess || 'Bus deleted successfully');
+        setMessageType('success');
       } catch (error) {
         console.error('Error al eliminar autobús:', error);
-        alert(t.deleteError || 'Could not delete the bus.');
+        setMessage(t.deleteError || 'Could not delete the bus.');
+        setMessageType('error');
       }
     }
   };
@@ -39,14 +45,16 @@ const BusList = ({ reload }) => {
     e.preventDefault();
     try {
       await axios.put(`http://localhost:5231/api/buses/${editingBus.id}`, editingBus);
-      alert(t.updatedSuccess || 'Bus updated successfully');
       setEditingBus(null);
+      setMessage(t.updatedSuccess || 'Bus updated successfully');
+      setMessageType('success');
       // Recargar lista después de editar
       axios.get('http://localhost:5231/api/buses')
         .then(response => setBuses(response.data))
         .catch(error => console.error('Error al obtener autobuses:', error));
     } catch (error) {
-      alert(t.updateError || 'Error updating bus');
+      setMessage(t.updateError || 'Error updating bus');
+      setMessageType('error');
       console.error(error);
     }
   };
@@ -54,11 +62,13 @@ const BusList = ({ reload }) => {
   return (
     <div className="list-container">
       <h2>{t.title}</h2>
+      <FormNotification message={message} type={messageType} />
 
       {/* Edit Form */}
       {editingBus && (
         <div className="edit-form-card">
           <h3>{t.editTitle}</h3>
+          <FormNotification message={message} type={messageType} />
           <form onSubmit={handleUpdate} className="bus-form">
             <div className="form-group">
               <label>{t.table.number}</label>

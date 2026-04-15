@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import FormNotification from './FormNotification';
 
 const EditBusForm = ({ bus, onCancel, onBusUpdated }) => {
   const [formData, setFormData] = useState({ ...bus });
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState('');
 
   useEffect(() => {
     setFormData({ ...bus });
@@ -16,17 +19,20 @@ const EditBusForm = ({ bus, onCancel, onBusUpdated }) => {
     e.preventDefault();
     try {
       await axios.put(`http://localhost:5231/api/buses/${formData.id}`, formData);
-      alert('Autobús actualizado correctamente.');
+      setMessage('Autobús actualizado correctamente.');
+      setMessageType('success');
       onBusUpdated();
     } catch (error) {
       console.error('Error al actualizar autobús:', error);
-      alert('Error al actualizar autobús.');
+      setMessage('Error al actualizar autobús.');
+      setMessageType('error');
     }
   };
 
   return (
     <form onSubmit={handleSubmit}>
       <h2>Editar Autobús</h2>
+      <FormNotification message={message} type={messageType} />
       <input name="busNumber" placeholder="Número" value={formData.busNumber} onChange={handleChange} required />
       <input name="model" placeholder="Modelo" value={formData.model} onChange={handleChange} required />
       <input name="capacity" type="number" placeholder="Capacidad" value={formData.capacity} onChange={handleChange} required />

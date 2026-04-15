@@ -111,6 +111,25 @@ body.dark-mode {
   gap: 1rem;
 }
 
+.navbar-language {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(102, 126, 234, 0.08);
+}
+
+.navbar-language-label {
+  font-size: 0.85rem;
+  color: #667eea;
+  font-weight: 600;
+}
+
+.navbar.dark .navbar-language-label {
+  color: #b2bff9;
+}
+
 .theme-toggle,
 .menu-toggle {
   background: none;
@@ -283,6 +302,29 @@ body.dark-mode .lang-btn.active,
 body.dark-mode .lang-btn:hover {
   background: #c0c7dd;
   color: #1a1a2e;
+}
+
+.form-notification {
+  margin: 1rem 0;
+  padding: 0.9rem 1rem;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.form-notification.success {
+  background: #daf5dc;
+  color: #1f5d24;
+}
+
+.form-notification.error {
+  background: #fde2e2;
+  color: #a10909;
+}
+
+.form-notification.info {
+  background: #e8f1ff;
+  color: #154b92;
 }
 
 .bus-icon {

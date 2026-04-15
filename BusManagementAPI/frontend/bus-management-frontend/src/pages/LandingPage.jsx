@@ -22,20 +22,6 @@ const LandingPage = () => {
     <div className="landing-page">
       <header className="hero-section">
         <div className="hero-content">
-          <div className="language-toggle">
-            <button
-              className={`lang-btn ${language === 'en' ? 'active' : ''}`}
-              onClick={() => setLanguage('en')}
-            >
-              {navLabels.english}
-            </button>
-            <button
-              className={`lang-btn ${language === 'es' ? 'active' : ''}`}
-              onClick={() => setLanguage('es')}
-            >
-              {navLabels.spanish}
-            </button>
-          </div>
           <h1>{content.title}</h1>
           <p className="hero-subtitle">{content.subtitle}</p>
         </div>
