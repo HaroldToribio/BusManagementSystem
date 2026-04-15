@@ -14,6 +14,6 @@ namespace BusManagementAPI.Models
         public int ScheduleId { get; set; }
 
         [ForeignKey("ScheduleId")]
-        public Schedule Schedule { get; set; }
+        public Schedule? Schedule { get; set; }
     }
 }

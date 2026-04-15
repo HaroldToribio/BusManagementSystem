@@ -15,13 +15,13 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Aquí agregas la política de CORS:
+// Aquï¿½ agregas la polï¿½tica de CORS:
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: MyAllowSpecificOrigins,
                       policy =>
                       {
-                          policy.WithOrigins("http://localhost:3000")
+                          policy.WithOrigins("http://localhost:3000", "http://localhost:3001")
                                 .AllowAnyHeader()
                                 .AllowAnyMethod();
                       });
@@ -29,7 +29,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Aquí activas CORS:
+// Aquï¿½ activas CORS:
 app.UseCors(MyAllowSpecificOrigins);
 
 if (app.Environment.IsDevelopment())

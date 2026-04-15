@@ -1,11 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import { FaUser, FaCalendarAlt, FaEdit, FaTrash } from 'react-icons/fa';
+import { LanguageContext, translations } from '../context/LanguageContext';
+import FormNotification from './FormNotification';
 
 const ReservationList = () => {
+  const { language } = useContext(LanguageContext);
+  const t = translations[language].reservationForm;
   const [reservations, setReservations] = useState([]);
   const [newReservation, setNewReservation] = useState({ passengerName: '', scheduleId: '' });
   const [schedules, setSchedules] = useState([]);
   const [editingReservation, setEditingReservation] = useState(null);
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState('');
 
   useEffect(() => {
     fetchReservations();
@@ -15,13 +22,21 @@ const ReservationList = () => {
   const fetchReservations = () => {
     axios.get('http://localhost:5231/api/reservations')
       .then(res => setReservations(res.data))
-      .catch(err => console.error('Error al obtener reservas:', err));
+      .catch(err => {
+        console.error('Error al obtener reservas:', err);
+        setMessage(t.fetchError || 'Unable to load reservations.');
+        setMessageType('error');
+      });
   };
 
   const fetchSchedules = () => {
     axios.get('http://localhost:5231/api/schedules')
       .then(res => setSchedules(res.data))
-      .catch(err => console.error('Error al obtener horarios:', err));
+      .catch(err => {
+        console.error('Error al obtener horarios:', err);
+        setMessage(t.fetchError || 'Unable to load schedules.');
+        setMessageType('error');
+      });
   };
 
   const handleChange = (e) => {
@@ -31,16 +46,19 @@ const ReservationList = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!newReservation.passengerName || !newReservation.scheduleId) {
-      alert("Por favor, complete todos los campos.");
+      setMessage(t.fillFields || 'Please complete all fields.');
+      setMessageType('error');
       return;
     }
     try {
       await axios.post('http://localhost:5231/api/reservations', newReservation);
-      alert('Reserva creada correctamente');
+      setMessage(t.addedSuccess || 'Reservation created successfully');
+      setMessageType('success');
       setNewReservation({ passengerName: '', scheduleId: '' });
-      fetchReservations(); // Recargar las reservas
+      fetchReservations();
     } catch (err) {
-      alert('Error al crear reserva');
+      setMessage(t.addError || 'Error creating reservation');
+      setMessageType('error');
       console.error(err);
     }
   };
@@ -52,91 +70,101 @@ const ReservationList = () => {
   const handleUpdate = async (e) => {
     e.preventDefault();
     if (!editingReservation.passengerName || !editingReservation.scheduleId) {
-      alert("Por favor, complete todos los campos.");
+      setMessage(t.fillFields || 'Please complete all fields.');
+      setMessageType('error');
       return;
     }
     try {
       await axios.put(`http://localhost:5231/api/reservations/${editingReservation.id}`, editingReservation);
-      alert('Reserva actualizada correctamente');
-      setEditingReservation(null); // Ocultar formulario de edición
-      fetchReservations(); // Recargar las reservas
+      setMessage(t.updatedSuccess || 'Reservation updated successfully');
+      setMessageType('success');
+      setEditingReservation(null);
+      fetchReservations();
     } catch (err) {
-      alert('Error al actualizar reserva');
+      setMessage(t.updateError || 'Error updating reservation');
+      setMessageType('error');
       console.error(err);
     }
   };
 
   const deleteReservation = async (id) => {
-    if (window.confirm("¿Estás seguro de eliminar esta reserva?")) {
+    if (window.confirm(t.deleteConfirmation || 'Are you sure you want to delete this reservation?')) {
       try {
         await axios.delete(`http://localhost:5231/api/reservations/${id}`);
         fetchReservations();
       } catch (err) {
-        console.error('Error al eliminar reserva:', err);
+        console.error('Error deleting reservation:', err);
       }
     }
   };
 
   return (
-    <div>
-      <h2>Reservas</h2>
+    <div className="list-container">
+      <h2>{t.title}</h2>
 
-      {/* Formulario de agregar reserva */}
-      <form onSubmit={handleSubmit} className="p-4 border rounded mb-3">
-        <h3>Agregar Reserva</h3>
-        <div className="mb-3">
-          <input
-            name="passengerName"
-            placeholder="Nombre del pasajero"
-            value={newReservation.passengerName}
-            onChange={handleChange}
-            required
-            className="form-control"
-          />
-        </div>
-        <div className="mb-3">
-          <select
-            name="scheduleId"
-            value={newReservation.scheduleId}
-            onChange={handleChange}
-            required
-            className="form-control"
-          >
-            <option value="">Seleccione un horario</option>
-            {schedules.map((schedule) => (
-              <option key={schedule.id} value={schedule.id}>
-                {schedule.departureTime} → {schedule.arrivalTime} ({schedule.route?.origin} - {schedule.route?.destination})
-              </option>
-            ))}
-          </select>
-        </div>
-        <button type="submit" className="btn btn-primary w-100">Agregar Reserva</button>
-      </form>
+      {/* Add Reservation Form */}
+      <div className="form-container">
+        <h3>{t.title}</h3>
+        <FormNotification message={message} type={messageType} />
+        <form onSubmit={handleSubmit} className="reservation-form">
+          <div className="form-group">
+            <label><FaUser /> {t.passengerName}</label>
+            <input
+              name="passengerName"
+              placeholder={t.placeholderPassenger}
+              value={newReservation.passengerName}
+              onChange={handleChange}
+              required
+              className="form-input"
+            />
+          </div>
+          <div className="form-group">
+            <label><FaCalendarAlt /> {t.schedule}</label>
+            <select
+              name="scheduleId"
+              value={newReservation.scheduleId}
+              onChange={handleChange}
+              required
+              className="form-input"
+            >
+              <option value="">{t.selectSchedule}</option>
+              {schedules.map((schedule) => (
+                <option key={schedule.id} value={schedule.id}>
+                  {schedule.departureTime} → {schedule.arrivalTime} ({schedule.route?.origin} - {schedule.route?.destination})
+                </option>
+              ))}
+            </select>
+          </div>
+          <button type="submit" className="submit-btn">{t.buttonAdd}</button>
+        </form>
+      </div>
 
-      {/* Formulario de edición */}
+      {/* Edit Form */}
       {editingReservation && (
-        <div className="p-4 border rounded mb-3">
-          <h3>Editar Reserva</h3>
-          <form onSubmit={handleUpdate}>
-            <div className="mb-3">
+        <div className="edit-form-card">
+          <h3>{t.editTitle}</h3>
+          <form onSubmit={handleUpdate} className="reservation-form">
+            <div className="form-group">
+              <label><FaUser /> {t.passengerName}</label>
               <input
                 name="passengerName"
-                placeholder="Nombre del pasajero"
+                placeholder={t.placeholderPassenger}
                 value={editingReservation.passengerName}
                 onChange={(e) => setEditingReservation({ ...editingReservation, passengerName: e.target.value })}
                 required
-                className="form-control"
+                className="form-input"
               />
             </div>
-            <div className="mb-3">
+            <div className="form-group">
+              <label><FaCalendarAlt /> {t.schedule}</label>
               <select
                 name="scheduleId"
                 value={editingReservation.scheduleId}
                 onChange={(e) => setEditingReservation({ ...editingReservation, scheduleId: e.target.value })}
                 required
-                className="form-control"
+                className="form-input"
               >
-                <option value="">Seleccione un horario</option>
+                <option value="">{t.selectSchedule}</option>
                 {schedules.map((schedule) => (
                   <option key={schedule.id} value={schedule.id}>
                     {schedule.departureTime} → {schedule.arrivalTime} ({schedule.route?.origin} - {schedule.route?.destination})
@@ -144,40 +172,46 @@ const ReservationList = () => {
                 ))}
               </select>
             </div>
-            <button type="submit" className="btn btn-success w-100">Actualizar Reserva</button>
-            <button type="button" className="btn btn-secondary w-100 mt-2" onClick={() => setEditingReservation(null)}>Cancelar</button>
+            <div className="form-actions">
+              <button type="submit" className="submit-btn">{t.buttonUpdate}</button>
+              <button type="button" className="cancel-btn" onClick={() => setEditingReservation(null)}>{t.cancel}</button>
+            </div>
           </form>
         </div>
       )}
 
-      {/* Lista de reservas */}
-      <table className="table table-striped mt-3">
-        <thead>
-          <tr>
-            <th>Pasajero</th>
-            <th>Horario</th>
-            <th>Ruta</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {reservations.map(r => (
-            <tr key={r.id}>
-              <td>{r.passengerName}</td>
-              <td>{r.schedule?.departureTime} → {r.schedule?.arrivalTime}</td>
-              <td>{r.schedule?.route?.origin} - {r.schedule?.route?.destination}</td>
-              <td>
-                <button onClick={() => handleEdit(r)} className="btn btn-warning btn-sm mx-1">
-                  Editar
-                </button>
-                <button onClick={() => deleteReservation(r.id)} className="btn btn-danger btn-sm mx-1">
-                  Eliminar
-                </button>
-              </td>
+      {/* Reservations Table */}
+      <div className="table-container">
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>{t.table.passenger}</th>
+              <th>{t.table.schedule}</th>
+              <th>{t.table.route}</th>
+              <th>{t.table.actions}</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {reservations.map(r => (
+              <tr key={r.id} className="table-row">
+                <td>{r.passengerName}</td>
+                <td>{r.schedule?.departureTime} → {r.schedule?.arrivalTime}</td>
+                <td>{r.schedule?.route?.origin} - {r.schedule?.route?.destination}</td>
+                <td>
+                  <div className="action-buttons">
+                    <button onClick={() => handleEdit(r)} className="action-btn edit-btn" title={t.edit}>
+                      <FaEdit /> {t.edit}
+                    </button>
+                    <button onClick={() => deleteReservation(r.id)} className="action-btn delete-btn" title={t.delete}>
+                      <FaTrash /> {t.delete}
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

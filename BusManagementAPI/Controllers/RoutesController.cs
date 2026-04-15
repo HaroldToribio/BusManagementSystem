@@ -22,12 +22,31 @@ namespace BusManagementAPI.Controllers
             return await _context.Routes.ToListAsync();
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<RouteModel>> Get(int id)
+        [HttpPost]
+        public async Task<ActionResult<RouteModel>> Post(RouteModel route)
+        {
+            _context.Routes.Add(route);
+            await _context.SaveChangesAsync();
+            return CreatedAtAction(nameof(Get), new { id = route.Id }, route);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put(int id, RouteModel route)
+        {
+            if (id != route.Id) return BadRequest();
+            _context.Entry(route).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
         {
             var route = await _context.Routes.FindAsync(id);
             if (route == null) return NotFound();
-            return route;
+            _context.Routes.Remove(route);
+            await _context.SaveChangesAsync();
+            return NoContent();
         }
     }
 }

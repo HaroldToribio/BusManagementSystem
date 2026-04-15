@@ -1,9 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import axios from 'axios';
+import { FaEdit, FaTrash } from 'react-icons/fa';
+import { LanguageContext, translations } from '../context/LanguageContext';
+import FormNotification from './FormNotification';
 
 const BusList = ({ reload }) => {
+  const { language } = useContext(LanguageContext);
+  const t = translations[language].busList;
   const [buses, setBuses] = useState([]);
   const [editingBus, setEditingBus] = useState(null); // Estado para el autobús en edición
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState('');
 
   useEffect(() => {
     axios.get('http://localhost:5231/api/buses')
@@ -12,13 +19,16 @@ const BusList = ({ reload }) => {
   }, [reload]);
 
   const handleDelete = async (id) => {
-    if (window.confirm('¿Estás seguro de eliminar este autobús?')) {
+    if (window.confirm(t.deleteConfirmation || 'Are you sure you want to delete this bus?')) {
       try {
         await axios.delete(`http://localhost:5231/api/buses/${id}`);
         setBuses(buses.filter(bus => bus.id !== id));  // Actualiza la lista sin recargar
+        setMessage(t.deleteSuccess || 'Bus deleted successfully');
+        setMessageType('success');
       } catch (error) {
         console.error('Error al eliminar autobús:', error);
-        alert('No se pudo eliminar el autobús.');
+        setMessage(t.deleteError || 'Could not delete the bus.');
+        setMessageType('error');
       }
     }
   };
@@ -35,117 +45,144 @@ const BusList = ({ reload }) => {
     e.preventDefault();
     try {
       await axios.put(`http://localhost:5231/api/buses/${editingBus.id}`, editingBus);
-      alert('Autobús actualizado correctamente.');
       setEditingBus(null);
+      setMessage(t.updatedSuccess || 'Bus updated successfully');
+      setMessageType('success');
       // Recargar lista después de editar
       axios.get('http://localhost:5231/api/buses')
         .then(response => setBuses(response.data))
         .catch(error => console.error('Error al obtener autobuses:', error));
     } catch (error) {
-      alert('Error al actualizar autobús');
+      setMessage(t.updateError || 'Error updating bus');
+      setMessageType('error');
       console.error(error);
     }
   };
 
   return (
-    <div>
-      <h2>Lista de Autobuses</h2>
+    <div className="list-container">
+      <h2>{t.title}</h2>
+      <FormNotification message={message} type={messageType} />
 
-      {/* Formulario de edición */}
+      {/* Edit Form */}
       {editingBus && (
-        <div>
-          <h3>Editar Autobús</h3>
-          <form onSubmit={handleUpdate}>
-            <input
-              type="text"
-              name="busNumber"
-              placeholder="Número"
-              value={editingBus.busNumber}
-              onChange={handleChange}
-              required
-              className="form-control mb-3"
-            />
-            <input
-              type="text"
-              name="model"
-              placeholder="Modelo"
-              value={editingBus.model}
-              onChange={handleChange}
-              required
-              className="form-control mb-3"
-            />
-            <input
-              type="number"
-              name="capacity"
-              placeholder="Capacidad"
-              value={editingBus.capacity}
-              onChange={handleChange}
-              required
-              className="form-control mb-3"
-            />
-            <input
-              type="number"
-              name="year"
-              placeholder="Año"
-              value={editingBus.year}
-              onChange={handleChange}
-              required
-              className="form-control mb-3"
-            />
-            <input
-              type="text"
-              name="status"
-              placeholder="Estado"
-              value={editingBus.status}
-              onChange={handleChange}
-              required
-              className="form-control mb-3"
-            />
-            <button type="submit" className="btn btn-success w-100">Actualizar</button>
-            <button type="button" className="btn btn-secondary w-100 mt-2" onClick={() => setEditingBus(null)}>Cancelar</button>
+        <div className="edit-form-card">
+          <h3>{t.editTitle}</h3>
+          <FormNotification message={message} type={messageType} />
+          <form onSubmit={handleUpdate} className="bus-form">
+            <div className="form-group">
+              <label>{t.table.number}</label>
+              <input
+                type="text"
+                name="busNumber"
+                placeholder={t.table.number}
+                value={editingBus.busNumber}
+                onChange={handleChange}
+                required
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <label>{t.table.model}</label>
+              <input
+                type="text"
+                name="model"
+                placeholder={t.table.model}
+                value={editingBus.model}
+                onChange={handleChange}
+                required
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <label>{t.table.capacity}</label>
+              <input
+                type="number"
+                name="capacity"
+                placeholder={t.table.capacity}
+                value={editingBus.capacity}
+                onChange={handleChange}
+                required
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <label>{t.table.year}</label>
+              <input
+                type="number"
+                name="year"
+                placeholder={t.table.year}
+                value={editingBus.year}
+                onChange={handleChange}
+                required
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <label>{t.table.status}</label>
+              <input
+                type="text"
+                name="status"
+                placeholder={t.table.status}
+                value={editingBus.status}
+                onChange={handleChange}
+                required
+                className="form-input"
+              />
+            </div>
+            <div className="form-actions">
+              <button type="submit" className="submit-btn">{t.update}</button>
+              <button type="button" className="cancel-btn" onClick={() => setEditingBus(null)}>{t.cancel}</button>
+            </div>
           </form>
         </div>
       )}
 
-      <table className="table table-striped mt-3">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Número</th>
-            <th>Modelo</th>
-            <th>Capacidad</th>
-            <th>Año</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {buses.map((bus) => (
-            <tr key={bus.id}>
-              <td>{bus.id}</td>
-              <td>{bus.busNumber}</td>
-              <td>{bus.model}</td>
-              <td>{bus.capacity}</td>
-              <td>{bus.year}</td>
-              <td>{bus.status}</td>
-              <td>
-                <button
-                  onClick={() => handleEdit(bus)}
-                  className="btn btn-warning btn-sm mx-1"
-                >
-                  Editar
-                </button>
-                <button
-                  onClick={() => handleDelete(bus.id)}
-                  className="btn btn-danger btn-sm mx-1"
-                >
-                  Eliminar
-                </button>
-              </td>
+      <div className="table-container">
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>{t.table.id}</th>
+              <th>{t.table.number}</th>
+              <th>{t.table.model}</th>
+              <th>{t.table.capacity}</th>
+              <th>{t.table.year}</th>
+              <th>{t.table.status}</th>
+              <th>{t.table.actions}</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {buses.map((bus) => (
+              <tr key={bus.id} className="table-row">
+                <td>{bus.id}</td>
+                <td>{bus.busNumber}</td>
+                <td>{bus.model}</td>
+                <td>{bus.capacity}</td>
+                <td>{bus.year}</td>
+                <td>{bus.status}</td>
+                <td>
+                  <div className="action-buttons">
+                    <button
+                      onClick={() => handleEdit(bus)}
+                      className="action-btn edit-btn"
+                      title={t.edit}
+                    >
+                      <FaEdit /> {t.edit}
+                    </button>
+                    <button
+                      onClick={() => handleDelete(bus.id)}
+                      className="action-btn delete-btn"
+                      title={t.delete}
+                    >
+                      <FaTrash /> {t.delete}
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
